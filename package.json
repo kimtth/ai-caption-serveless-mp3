@@ -8,8 +8,10 @@
   },
   "dependencies": {
     "@azure/storage-blob": "^12.4.0",
-    "esm": "^3.2.25",
-    "lamejs": "^1.2.0"
+    "cross-blob": "^2.0.0",
+    "lamejs": "^1.2.0",
+    "parse-multipart": "^1.0.4",
+    "parse-multipart-data": "^1.0.0"
   },
   "devDependencies": {}
 }
