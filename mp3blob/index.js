@@ -13,13 +13,6 @@ module.exports = async function (context, request) {
     // const name = (req.query.name || (req.body && req.body.name));
 
     if (request.method === "POST") {
-        // FormData
-        // encode body to base64 string
-        const cc = request.body;
-        console.log(cc);
-        console.log(typeof cc);
-        console.log(cc.channelId);
-
         const bodyBuffer = Buffer.from(request.body);
         const boundary = multipart.getBoundary(request.headers['content-type']);
         // parse the body
@@ -30,6 +23,7 @@ module.exports = async function (context, request) {
         let byteCount = 0
         let wavData = null;
 
+        // FormData Parsing
         for (const part of parts) {
             if (part.name !== undefined) {
                 const base64 = part.data;
@@ -37,7 +31,7 @@ module.exports = async function (context, request) {
                 const str = buff.toString('utf-8');
                 if (part.name.includes('channel')) {
                     channelId = str;
-                } else if(part.name.includes('message')) {
+                } else if (part.name.includes('message')) {
                     messageId = str;
                 } else {
                     byteCount = parseInt(str, 10);
@@ -48,25 +42,32 @@ module.exports = async function (context, request) {
             }
         }
 
-        console.log(">>>>>>", channelId, messageId, wavData.wavFragmentCount, ">>>>>>");
+        context.log(">>>>>>", channelId, messageId, ">>>>>>");
 
         if (isEmpty(channelId) || isEmpty(messageId) || isEmpty(wavData)) {
             const responseMessage = `The data is undefined. ${channelId} ${messageId}`
             context.res = {
-                body: responseMessage
+                body: responseMessage,
+                status: 400 //bad requests
             };
             return
         }
 
         try {
-            const responseMessage = pcmToMp3convertAsync(channelId, messageId, byteCount, wavData)
+            pcmToMp3convertAsync(channelId, messageId, byteCount, wavData)
+                .then(res => {
+                    context.log(res)
+                }).catch(err => {
+                    context.log(err)
+                })
             context.res = {
                 // status: 200, /* Defaults to 200 */
                 body: responseMessage
             };
         } catch (error) {
             context.res = {
-                body: error
+                body: error,
+                status: 400 //bad requests
             };
         }
     }
