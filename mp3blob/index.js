@@ -57,13 +57,13 @@ module.exports = async function (context, request) {
             pcmToMp3convertAsync(channelId, messageId, byteCount, wavData)
                 .then(res => {
                     context.log(res)
+                    context.res = {
+                        // status: 200, /* Defaults to 200 */
+                        body: res
+                    };
                 }).catch(err => {
                     context.log(err)
                 })
-            context.res = {
-                // status: 200, /* Defaults to 200 */
-                body: responseMessage
-            };
         } catch (error) {
             context.res = {
                 body: error,
